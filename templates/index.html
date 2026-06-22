@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Optimal Control Sets — Quantitative Risk Optimisation{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="hero-eyebrow">A framework, not a fixed rulebook</div>
+  <h1 class="hero-title">
+    Most risk registers tell you<br>
+    what's dangerous. <span class="hero-accent">This one tells you what to buy.</span>
+  </h1>
+  <p class="hero-sub">
+    A Monte Carlo model for choosing security or safety controls under a budget and a risk
+    threshold. Works for any domain where you can describe threats by likelihood and harm,
+    and controls by cost and effectiveness — healthcare devices, industrial sensors, critical
+    infrastructure, anything with a quantifiable downside.
+  </p>
+  <div class="hero-actions">
+    <a href="/case-study/healthcare" class="btn btn-primary btn-large">See it applied →</a>
+    <a href="/simulate" class="btn btn-ghost btn-large">Run your own data →</a>
+  </div>
+</section>
+
+<!-- THE PROBLEM (moved up, rephrased away from "checklist") -->
+<section class="section section-tight">
+  <div class="section-label">The gap this fills</div>
+  <h2 class="section-title">Knowing the risks isn't the same as knowing what to do about them</h2>
+  <div class="formula-grid">
+    <div class="formula-card">
+      <div class="formula-title">A typical risk assessment</div>
+      <p>Produces a list of controls you "should" implement, with no sense of which ones matter most for your specific threat profile, or what the next dollar spent actually buys you.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">What this model adds</div>
+      <p>Every combination of controls evaluated against every threat, ranked by a single score, so you can see the cheapest set that still clears your risk bar — not just a list, a decision.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">Two starting points</div>
+      <p>Designing a new system from scratch, or already running one and evaluating a proposed change — a new interface, a swapped vendor, an added sensor.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">Honest about uncertainty</div>
+      <p>Likelihood, harm and effectiveness are rarely single numbers in practice. The model samples from distributions instead of pretending otherwise.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNATURE ELEMENT: sample decision output, not raw data -->
+<section class="section section-tight">
+  <div class="decision-strip">
+    <div class="decision-head">
+      <span class="decision-title">Sample output — top control sets after simulation</span>
+      <span class="decision-title" style="color:var(--text-dim)">illustrative, not live data</span>
+    </div>
+    <div class="decision-cards">
+      <div class="decision-card is-best">
+        <span class="decision-badge">optimal</span>
+        <div class="decision-rank">Rank 1</div>
+        <div class="decision-controls">Cert pinning + TLS 1.3</div>
+        <div class="decision-metrics">
+          <div class="decision-metric"><span class="decision-metric-val gold">0.034</span><span class="decision-metric-label">RSI</span></div>
+          <div class="decision-metric"><span class="decision-metric-val cyan">$890</span><span class="decision-metric-label">Cost</span></div>
+        </div>
+      </div>
+      <div class="decision-card">
+        <div class="decision-rank">Rank 2</div>
+        <div class="decision-controls">Cert pinning + TLS 1.3 + device attestation</div>
+        <div class="decision-metrics">
+          <div class="decision-metric"><span class="decision-metric-val gold">0.029</span><span class="decision-metric-label">RSI</span></div>
+          <div class="decision-metric"><span class="decision-metric-val cyan">$1,640</span><span class="decision-metric-label">Cost</span></div>
+        </div>
+      </div>
+      <div class="decision-card">
+        <div class="decision-rank">Rank 3</div>
+        <div class="decision-controls">TLS 1.3 only</div>
+        <div class="decision-metrics">
+          <div class="decision-metric"><span class="decision-metric-val gold">0.061</span><span class="decision-metric-label">RSI</span></div>
+          <div class="decision-metric"><span class="decision-metric-val cyan">$420</span><span class="decision-metric-label">Cost</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HAZARD/HARM EMPHASIS -->
+<section class="section section-tight">
+  <div class="hazard-callout">
+    <span class="hazard-callout-icon">◆</span>
+    <div>
+      <h3>Most risk tools stop at likelihood. This one treats harm as a first-class variable.</h3>
+      <p>A threat that's likely but harmless and a threat that's rare but catastrophic are not the same problem — yet many risk-scoring approaches collapse them into one number. Here, harm gets its own distribution, its own uncertainty, and its own weight in the final score, separate from how often something is expected to happen.</p>
+      <p>That distinction is what lets the model tell the difference between "frequent but minor" and "rare but severe," and rank control sets accordingly — not just by how many threats they touch, but by how much those threats actually cost if they land.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TWO WAYS TO USE THIS -->
+<section class="section">
+  <div class="section-label">Where to go next</div>
+  <h2 class="section-title">Two ways to use this</h2>
+  <div class="path-grid">
+    <a href="/case-study/healthcare" class="path-card">
+      <div class="path-kicker">Worked example</div>
+      <h3>Healthcare Case Study</h3>
+      <p>The model applied to a real system: a continuous-monitoring mobile app talking to BLE sensors and actuators. 31 threats, 14 controls, real cost data.</p>
+      <span class="path-cta">See the worked example →</span>
+    </a>
+    <a href="/simulate" class="path-card">
+      <div class="path-kicker">The tool</div>
+      <h3>Run Your Own</h3>
+      <p>Enter your own threats and controls — or upload them from a spreadsheet — and get back a ranked, optimal control set for your budget.</p>
+      <span class="path-cta">Open the simulator →</span>
+    </a>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section class="section-deep">
+  <div class="section-label">Pipeline</div>
+  <h2 class="section-title">Four steps, independent of domain</h2>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">01 — Threats</div>
+      <h3>Describe what can go wrong</h3>
+      <p>Each threat gets a likelihood and a harm distribution. Harm doesn't have to mean "patient injury" — it's whatever downside your system cares about, scaled to [0,1].</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">02 — Controls</div>
+      <h3>Describe what you can do about it</h3>
+      <p>Each control gets a cost range and an effectiveness distribution — the fraction of risk it removes from any threat it's mapped to.</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">03 — Map &amp; sample</div>
+      <h3>Connect controls to threats, then simulate</h3>
+      <p>Every possible subset of controls is tested. For each, harm and effectiveness are sampled from their distributions — not just averaged.</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">04 — Rank</div>
+      <h3>Score and sort</h3>
+      <p>Subsets that breach the threshold on any single threat are discarded. The rest are ranked by the Risk Score Index — lowest is best.</p>
+    </div>
+  </div>
+</section>
+
+<!-- THE MATH, with distribution justification -->
+<section class="section">
+  <div class="section-label label-gold">Formal definitions</div>
+  <h2 class="section-title">The math</h2>
+  <p class="lede">Three quantities in this model carry real uncertainty — implementation cost, control effectiveness, and patient/system harm — and each is modeled with a distribution chosen for a specific reason, not by default.</p>
+
+  <div class="formula-grid" style="margin-bottom: 1.6rem">
+    <div class="formula-card">
+      <div class="formula-title">Residual risk, per threat</div>
+      <div class="formula-eq">R<sub>i</sub> = L<sub>i</sub> · H<sub>i</sub> · ∏<sub>j∈S</sub>(1 − E<sub>j</sub>)</div>
+      <p>L is likelihood, H is sampled harm, S is the set of controls active against threat i, and E<sub>j</sub> is the sampled effectiveness of control j. Multiple controls compound multiplicatively — each removes a fraction of what's left.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">Risk Score Index</div>
+      <div class="formula-eq">RSI = Σ λ<sub>k</sub> · n<sub>k</sub></div>
+      <p>Each threat's residual risk is bucketed into five levels relative to the threshold (low → high), each weighted (0.1 → 0.9), then summed. One number per control set, ranked ascending.</p>
+    </div>
+  </div>
+
+  <div class="var-card">
+    <div class="var-card-head">
+      <span class="var-name">Implementation cost</span>
+      <span class="var-dist-tag cyan">Log-Normal(μ, σ)</span>
+    </div>
+    <p>Cost is typically the product of several independent factors — labor, materials, training, integration — each scaling the total multiplicatively rather than adding to it. That kind of multiplicative combination of factors is exactly what produces a log-normal shape in practice: strictly positive, clustered around a moderate value, with a long right tail that allows for occasional large overruns. σ is calibrated so the estimated maximum cost sits near the 95th percentile, and μ follows from the minimum estimate.</p>
+  </div>
+
+  <div class="var-card">
+    <div class="var-card-head">
+      <span class="var-name">Control effectiveness</span>
+      <span class="var-dist-tag">Beta(α, β)</span>
+    </div>
+    <p>There's no universally "correct" distribution for how effective a security or safety control turns out to be — but the value is always bounded between 0 (no effect) and 1 (fully effective), and the right shape needs to flex with how many factors could degrade that effectiveness. A control whose performance depends on one clear factor should have a narrow spread; one exposed to many independent failure modes needs a wider one. Beta handles both ends of that range — it can be tight and roughly symmetric, or skewed, or U-shaped — by adjusting just two parameters, which is why each control here can carry its own, independently calibrated, level of uncertainty.</p>
+  </div>
+
+  <div class="var-card">
+    <div class="var-card-head">
+      <span class="var-name">Harm to the affected party</span>
+      <span class="var-dist-tag">Beta(α, β)</span>
+    </div>
+    <p>The impact of a realized threat — scored from 0 (no impact) to 1 (worst-case outcome) — is an open problem with no single agreed-upon distribution either. Beta was chosen for the same flexibility reason as effectiveness, with the added support of prior work: researchers modeling continuous, bounded health-impact outcomes have used Beta successfully to represent combinations of patient risk, and it has also been applied to quality-of-life impact scores constrained to the same [0,1] range. A Poisson model was considered and set aside — it's built for count data, and is too rigid to capture the shape of a continuous, bounded harm outcome the way Beta can.</p>
+  </div>
+</section>
+
+
+
+<!-- DATA SOURCING - renamed -->
+<section class="section">
+  <div class="section-label">Where the numbers come from</div>
+  <h2 class="section-title">Estimates you can defend, not numbers you have to trust blindly</h2>
+  <p class="lede">Likelihood, harm and effectiveness are judgment calls dressed up as numbers. The model doesn't pretend otherwise — it gives you a structured place to record <em>why</em> you chose a value, so the estimate is auditable even when it isn't exact.</p>
+  <div class="formula-grid">
+    <div class="formula-card">
+      <div class="formula-title">For an existing system</div>
+      <p>Use incident history, penetration-test findings, or vendor security assessments. These are your most defensible numbers because they're observed, not estimated.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">For a new design</div>
+      <p>Use published vulnerability research for comparable systems, industry breach reports, or vendor-published control effectiveness (e.g. NIST, OWASP). Note the source in the optional justification field.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">When you genuinely don't know</div>
+      <p>Use a wide variance rather than guessing a narrow one — the model is built to carry that uncertainty through to the result rather than hide it in a false-precision point estimate.</p>
+    </div>
+    <div class="formula-card">
+      <div class="formula-title">Sanity-check the output, not just the input</div>
+      <p>If the optimal set surprises you, that's often the model finding a cheap control with outsized reach across many threats — check the mapping before you check the math.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="text-align:center">
+  <a href="/case-study/healthcare" class="btn btn-ghost btn-large" style="margin-right:.8rem">See it applied →</a>
+  <a href="/simulate" class="btn btn-primary btn-large">Try it on your own data →</a>
+</section>
+
+{% endblock %}

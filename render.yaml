@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: risk-register
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # For the feedback form email feature, add these two env vars in the
+      # Render dashboard (Environment tab) — never put passwords in code:
+      #   MAIL_USER = kosaryk.dasha@gmail.com
+      #   MAIL_PASS = (your Gmail App Password — see README for setup steps)

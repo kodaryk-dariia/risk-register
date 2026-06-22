@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Simulate — Optimal Control Sets{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1 class="page-title">Run a Simulation</h1>
+  <p class="page-sub">Choose whether you're designing a new system or evaluating a change to one that already exists, then enter or upload your threats and controls.</p>
+</section>
+
+<div class="sim-layout">
+
+  <!-- LEFT: FORM -->
+  <div class="sim-form-col">
+
+    <!-- MODE -->
+    <div class="card" id="mode-card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>What are you evaluating?</h2></div>
+      <div class="mode-switch">
+        <label class="mode-option selected" id="mode-design-label">
+          <div class="mode-option-title"><input type="radio" name="mode" value="design" checked class="mode-radio" onchange="setMode('design')"> New design</div>
+          <div class="mode-option-desc">No system exists yet. Every control is a candidate and is fully costed in every combination.</div>
+        </label>
+        <label class="mode-option" id="mode-baseline-label">
+          <div class="mode-option-title"><input type="radio" name="mode" value="baseline" class="mode-radio" onchange="setMode('baseline')"> Existing system / change</div>
+          <div class="mode-option-desc">A system is already running. Mark which controls are already in place — their cost won't count again, but their effectiveness still applies.</div>
+        </label>
+      </div>
+      <label class="field-label">Risk Threshold
+        <span class="field-hint">Maximum acceptable residual risk per threat (0–1). Lower = stricter.</span>
+      </label>
+      <input type="number" id="threshold" class="field-input" value="0.2" min="0.001" max="1" step="0.001" style="max-width:160px" />
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-icon">◆</span><h2>Load from spreadsheet</h2>
+      </div>
+      <p class="card-note">Optional. Use this instead of typing rows by hand below.</p>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <div class="upload-zone-icon">⇧</div>
+        <div class="upload-zone-text">Click to choose a file, or drag one here</div>
+        <div class="upload-zone-sub">.xlsx with Threats / Controls / Mapping sheets</div>
+      </div>
+      <input type="file" id="file-input" accept=".xlsx" style="display:none" onchange="handleFileUpload(this.files[0])" />
+      <div style="margin-top:.7rem">
+        <a href="/api/template" class="btn btn-ghost btn-sm">↓ Download blank template</a>
+      </div>
+    </div>
+
+    <!-- THREATS -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-icon">◆</span>
+        <h2>Threats</h2>
+        <button class="btn-add" onclick="addThreat()">+ Add Threat</button>
+      </div>
+
+      <div class="field-guide">
+        <button class="field-guide-toggle" onclick="toggleGuide('threat-guide')">
+          <span class="field-guide-icon">?</span> New to this? Here's what each field means
+          <span class="field-guide-chevron" id="threat-guide-chevron">▾</span>
+        </button>
+        <div class="field-guide-body" id="threat-guide" style="display:none">
+          <div class="field-guide-row">
+            <span class="field-guide-term">Likelihood</span>
+            <span class="field-guide-def">How often you'd expect this threat to actually happen, from <code>0</code> (basically never) to <code>1</code> (essentially certain). A guessable starting point: rare ≈ <code>0.1–0.3</code>, plausible ≈ <code>0.4–0.6</code>, expected ≈ <code>0.7–0.9</code>.</span>
+          </div>
+          <div class="field-guide-row">
+            <span class="field-guide-term">Harm Mean</span>
+            <span class="field-guide-def">Your best single guess at how bad it is <em>if this threat succeeds</em>, from <code>0</code> (no real impact) to <code>1</code> (worst case). This is separate from likelihood — a rare threat can still have a high harm value.</span>
+          </div>
+          <div class="field-guide-row">
+            <span class="field-guide-term">Harm Variance</span>
+            <span class="field-guide-def">How <em>unsure</em> you are about that harm guess. Small (e.g. <code>0.005</code>) means "I'm fairly confident." Larger (e.g. <code>0.03</code>) means "it could really vary depending on circumstances." When in doubt, use a larger number rather than a falsely confident small one.</span>
+          </div>
+          <div class="field-guide-example">
+            <strong>Example:</strong> "An attacker intercepts unencrypted data" — happens fairly often if nothing's encrypted (Likelihood <code>0.7</code>), and if it happens the data exposed is sensitive but not life-threatening (Harm Mean <code>0.4</code>), and you're reasonably confident in that estimate (Harm Variance <code>0.01</code>).
+          </div>
+        </div>
+      </div>
+
+      <div id="threats-container"></div>
+    </div>
+
+    <!-- MITIGATIONS -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-icon">◆</span>
+        <h2>Security Controls</h2>
+        <button class="btn-add" onclick="addMitigation()">+ Add Control</button>
+      </div>
+
+      <div class="field-guide">
+        <button class="field-guide-toggle" onclick="toggleGuide('control-guide')">
+          <span class="field-guide-icon">?</span> New to this? Here's what each field means
+          <span class="field-guide-chevron" id="control-guide-chevron">▾</span>
+        </button>
+        <div class="field-guide-body" id="control-guide" style="display:none">
+          <div class="field-guide-row">
+            <span class="field-guide-term">Cost Min / Max</span>
+            <span class="field-guide-def">Your realistic low and high estimate for what this control costs to implement, in dollars — labor, tools, licenses, setup. Doesn't need to be exact; a sensible range is enough.</span>
+          </div>
+          <div class="field-guide-row">
+            <span class="field-guide-term">Effectiveness Mean</span>
+            <span class="field-guide-def">How much of the risk this control removes when it's in place, from <code>0</code> (does nothing) to <code>1</code> (eliminates the threat entirely). Most real controls land around <code>0.7–0.95</code> — very few things are perfect.</span>
+          </div>
+          <div class="field-guide-row">
+            <span class="field-guide-term">Effectiveness Variance</span>
+            <span class="field-guide-def">How much that effectiveness might swing depending on setup, configuration, or attacker skill. Small (e.g. <code>0.004</code>) for a well-understood control; larger (e.g. <code>0.02</code>) if effectiveness really depends on how well it's deployed.</span>
+          </div>
+          <div class="field-guide-example">
+            <strong>Example:</strong> "TLS 1.3 encryption" costs somewhere between $300–$7,000 to roll out properly (Cost Min/Max), is usually very effective when configured correctly (Effectiveness Mean <code>0.95</code>), and effectiveness rarely varies much once it's set up right (Effectiveness Variance <code>0.002</code>).
+          </div>
+        </div>
+      </div>
+
+      <p class="card-note">
+        <span id="implemented-col-note" style="display:none">Check <strong>Implemented</strong> if this control already exists in your system</span>
+      </p>
+      <div id="mitigations-container"></div>
+    </div>
+
+    <!-- MAPPING -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-icon">◆</span>
+        <h2>Threat → Control Mapping</h2>
+        <button class="btn-add" onclick="addMapping()">+ Add Link</button>
+      </div>
+      <p class="card-note">Link each threat ID to the controls that mitigate it. One row per link.</p>
+      <div id="mapping-container"></div>
+    </div>
+
+    <div class="sim-actions">
+      <button class="btn btn-primary btn-large" id="run-btn" onclick="runSimulation()">
+        <span id="run-label">▶ Run Simulation</span>
+      </button>
+      <button class="btn btn-ghost" onclick="loadExample()">Load Example Data</button>
+      <button class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+    </div>
+
+  </div><!-- /sim-form-col -->
+
+  <!-- RIGHT: RESULTS -->
+  <div class="sim-results-col" id="results-panel" style="display:none">
+
+    <div class="results-header">
+      <h2>Results</h2>
+      <button class="btn btn-ghost btn-sm" id="export-btn" onclick="exportCSV()">↓ Export CSV</button>
+    </div>
+
+    <div id="results-summary" class="results-summary"></div>
+
+    <div class="results-tabs">
+      <button class="tab-btn active" onclick="showTab('table')">Ranking Table</button>
+      <button class="tab-btn" onclick="showTab('chart')">Cost · Risk · RSI</button>
+      <button class="tab-btn" onclick="showTab('breakdown')">Top 5 Detail</button>
+    </div>
+
+    <div id="tab-table" class="tab-pane">
+      <div class="table-wrap">
+        <table class="results-table" id="results-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th id="th-controls-col">Controls</th>
+              <th>Cost ($)</th>
+              <th>Total Risk</th>
+              <th>RSI</th>
+              <th>Risk Levels</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-chart" class="tab-pane" style="display:none">
+      <p style="font-size:.82rem;color:var(--text-dim);margin-bottom:.7rem">Every accepted control set plotted by cost, total residual risk, and RSI (color + height). Drag to rotate, scroll to zoom.</p>
+      <div id="plotly-3d" style="width:100%;height:420px"></div>
+    </div>
+
+    <div id="tab-breakdown" class="tab-pane" style="display:none">
+      <div id="top5-breakdown"></div>
+    </div>
+
+  </div><!-- /sim-results-col -->
+
+</div><!-- /sim-layout -->
+
+<div id="toast" class="toast" style="display:none"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.32.0/plotly.min.js"></script>
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+{% endblock %}

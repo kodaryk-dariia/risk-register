@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Feedback — Optimal Control Sets{% endblock %}
+
+{% block content %}
+
+<section class="page-header" style="padding-bottom:1rem">
+  <h1 class="page-title" style="font-size:1.5rem">Feedback &amp; Suggestions</h1>
+  <p class="page-sub" style="font-size:.92rem">Found a bug, have an idea, or want to suggest a use case for the model? Leave a note below.</p>
+</section>
+
+<section class="section" style="padding-top:1rem;max-width:640px">
+
+  {% if sent %}
+  <div class="feedback-success">
+    ✓ Message sent — thank you for the feedback!
+  </div>
+  {% elif error %}
+  <div class="feedback-error">
+    Something went wrong: {{ error }}. You can also reach out via
+    <a href="https://www.linkedin.com/in/dariia-kosaryk-514841345" target="_blank" rel="noopener">LinkedIn</a>.
+  </div>
+  {% endif %}
+
+  <form method="POST" action="/feedback" class="feedback-form">
+    <div class="fb-field">
+      <label class="fb-label" for="fb-name">Your name <span class="fb-opt">(optional)</span></label>
+      <input class="fb-input" type="text" id="fb-name" name="name" placeholder="e.g. Alex" maxlength="120" />
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-email">Your email <span class="fb-opt">(optional — only if you want a reply)</span></label>
+      <input class="fb-input" type="email" id="fb-email" name="email" placeholder="you@example.com" maxlength="200" />
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-type">Type</label>
+      <select class="fb-input" id="fb-type" name="type">
+        <option value="Bug report">Bug report</option>
+        <option value="Feature idea">Feature idea</option>
+        <option value="Use case suggestion">Use case suggestion</option>
+        <option value="General comment">General comment</option>
+      </select>
+    </div>
+    <div class="fb-field">
+      <label class="fb-label" for="fb-msg">Message <span style="color:var(--red)">*</span></label>
+      <textarea class="fb-input" id="fb-msg" name="message" rows="6" placeholder="Describe what you noticed, what you'd like to see, or how you'd use this tool…" maxlength="4000" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send feedback</button>
+  </form>
+</section>
+
+{% endblock %}

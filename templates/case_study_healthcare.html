@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Healthcare Case Study — Optimal Control Sets{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+  <span class="page-badge badge-case-study">◆ Healthcare IoMT — worked example</span>
+  <h1 class="page-title">Healthcare Case Study</h1>
+  <p class="page-sub">A continuous-monitoring system: a mobile app communicating over BLE with a sensor and an actuator, plus a backend server. This is the dataset the model was first built and tested against — not the only thing it can analyse.</p>
+</section>
+
+<div class="about-layout">
+
+  <div class="about-main">
+
+    <div class="card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>System architecture</h2></div>
+      <p style="font-size:.9rem;color:var(--text-mid)">Four components, three communication paths:</p>
+      <div class="arch-grid" style="margin-top:1.1rem">
+        <div class="arch-node"><div class="arch-node-title">BLE Sensor</div><div class="arch-node-threats">External entity</div></div>
+        <div class="arch-arrow">⟷</div>
+        <div class="arch-node arch-node-main"><div class="arch-node-title">Mobile App</div><div class="arch-node-threats">Process</div></div>
+        <div class="arch-arrow">⟷</div>
+        <div class="arch-node"><div class="arch-node-title">Server</div><div class="arch-node-threats">External entity</div></div>
+      </div>
+      <div class="arch-grid" style="margin-top:1rem">
+        <div class="arch-node"><div class="arch-node-title">BLE Actuator</div><div class="arch-node-threats">External entity</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>Interfaces</h2></div>
+      <div class="iface-table-wrap" style="overflow-x:auto">
+        <table class="iface-table">
+          <thead>
+            <tr><th>Interface</th><th>Purpose</th><th>Protocol</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mobile App ↔ Sensor</td>
+              <td>Send therapeutic readings from the sensor to the app · send control commands from the app to the sensor</td>
+              <td><span class="iface-proto">BLE</span></td>
+            </tr>
+            <tr>
+              <td>Mobile App ↔ Actuator</td>
+              <td>Send control commands to the actuator · send execution confirmations back to the app</td>
+              <td><span class="iface-proto">BLE</span></td>
+            </tr>
+            <tr>
+              <td>Mobile App ↔ Server</td>
+              <td>Send historical therapeutic data · receive responses and background commands from the server</td>
+              <td><span class="iface-proto">HTTPS</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>STRIDE applied by element type, not uniformly</h2></div>
+      <p style="font-size:.89rem;color:var(--text-mid);margin-bottom:1rem">Threat modeling with STRIDE assigns categories by the <em>type</em> of element in the data-flow diagram, not the same six categories everywhere. Only the mobile app is a process — the sensor, actuator and server are external entities, and the data flows between them carry their own subset. That's why the threat count varies by component below.</p>
+      <div class="iface-table-wrap" style="overflow-x:auto">
+        <table class="iface-table">
+          <thead>
+            <tr><th>DFD element type</th><th>Applicable STRIDE categories</th><th>Components in this system</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>External entity</td>
+              <td>Spoofing · Repudiation</td>
+              <td>Sensor, Actuator, Server</td>
+            </tr>
+            <tr>
+              <td>Process</td>
+              <td>Spoofing · Tampering · Repudiation · Info disclosure · DoS · Elevation</td>
+              <td>Mobile App</td>
+            </tr>
+            <tr>
+              <td>Data flow</td>
+              <td>Tampering · Info disclosure · DoS</td>
+              <td>Sensor↔App, App↔Actuator, App↔Server data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>Threat categories in this dataset</h2></div>
+      <div class="stride-grid">
+        <div class="stride-item"><span class="stride-badge badge-s">S</span><div><div class="stride-name">Spoofing</div><div class="stride-desc">Fake sensors, actuators, apps, or servers impersonating legitimate components</div></div></div>
+        <div class="stride-item"><span class="stride-badge badge-t">T</span><div><div class="stride-name">Tampering</div><div class="stride-desc">Unauthorized modification of BLE data, app binaries, or server responses</div></div></div>
+        <div class="stride-item"><span class="stride-badge badge-r">R</span><div><div class="stride-name">Repudiation</div><div class="stride-desc">Devices or apps denying performed therapeutic actions, hindering audit trails</div></div></div>
+        <div class="stride-item"><span class="stride-badge badge-i">I</span><div><div class="stride-name">Info Disclosure</div><div class="stride-desc">Interception of BLE/TLS traffic exposing patient therapy data</div></div></div>
+        <div class="stride-item"><span class="stride-badge badge-d">D</span><div><div class="stride-name">Denial of Service</div><div class="stride-desc">BLE jamming, Wi-Fi blocking, ransomware preventing app functionality</div></div></div>
+        <div class="stride-item"><span class="stride-badge badge-e">E</span><div><div class="stride-name">Elevation</div><div class="stride-desc">Single user-role architecture — privilege escalation not applicable here</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>Risk matrix — likelihood × harm</h2></div>
+      <p style="font-size:.89rem;color:var(--text-mid);margin-bottom:1rem">Residual risk is classified against a standard 5×5 matrix before being weighted into the RSI. Likelihood bands run by expected recurrence (monthly → essentially never); harm bands run by severity of patient impact.</p>
+      <div class="matrix-wrap">
+        <table class="matrix-table matrix-table-fixed">
+          <colgroup>
+            <col style="width:34px">
+            <col style="width:150px">
+            <col><col><col><col><col>
+          </colgroup>
+          <tr>
+            <th class="corner" rowspan="2" colspan="2"></th>
+            <th colspan="5">Harm to patient</th>
+          </tr>
+          <tr>
+            <th>Minor / no adverse health effect<br><span style="font-weight:700">0.1</span></th>
+            <th>Moderate adverse health effect<br><span style="font-weight:700">0.3</span></th>
+            <th>Serious adverse health effect<br><span style="font-weight:700">0.5</span></th>
+            <th>May cause serious injury or disability<br><span style="font-weight:700">0.7</span></th>
+            <th>Likely to result in patient death<br><span style="font-weight:700">0.9</span></th>
+          </tr>
+          <tr>
+            <td class="matrix-vert-label" rowspan="5">Likelihood</td>
+            <td class="row-label-cell">Occurs for certain<br><span class="matrix-freq">monthly or more · <strong>0.9</strong></span></td>
+            <td class="m-yellow">0.09</td><td class="m-yellow">0.27</td><td class="m-orange">0.45</td><td class="m-red">0.63</td><td class="m-red">0.81</td>
+          </tr>
+          <tr>
+            <td class="row-label-cell">Expected under most circumstances<br><span class="matrix-freq">several times/yr · <strong>0.7</strong></span></td>
+            <td class="m-green">0.07</td><td class="m-yellow">0.21</td><td class="m-orange">0.35</td><td class="m-orange">0.49</td><td class="m-red">0.63</td>
+          </tr>
+          <tr>
+            <td class="row-label-cell">Could occur under many circumstances<br><span class="matrix-freq">once per 1–3 yrs · <strong>0.5</strong></span></td>
+            <td class="m-green">0.05</td><td class="m-lgreen">0.15</td><td class="m-yellow">0.25</td><td class="m-orange">0.35</td><td class="m-orange">0.45</td>
+          </tr>
+          <tr>
+            <td class="row-label-cell">Could occur but not often<br><span class="matrix-freq">once per 3–5 yrs · <strong>0.3</strong></span></td>
+            <td class="m-green">0.03</td><td class="m-lgreen">0.09</td><td class="m-lgreen">0.15</td><td class="m-yellow">0.21</td><td class="m-orange">0.27</td>
+          </tr>
+          <tr>
+            <td class="row-label-cell">Not expected, but still possible<br><span class="matrix-freq">5+ yrs or never · <strong>0.1</strong></span></td>
+            <td class="m-green">0.01</td><td class="m-green">0.03</td><td class="m-green">0.05</td><td class="m-lgreen">0.07</td><td class="m-yellow">0.09</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>Where the likelihood &amp; harm values came from</h2></div>
+      <p style="font-size:.89rem;color:var(--text-mid)">These 31 threats use evidence-based estimates rather than guesses — drawn from BLE security research, medical-device security surveys, and protocol vulnerability studies. High-likelihood values (0.7–0.9) are assigned where practical attacks have been demonstrated against comparable BLE medical devices; moderate values (0.4–0.6) where the attack is plausible but needs more specific conditions. Harm is calibrated against patient-safety impact, from technical nuisance (0.05–0.1) to outcomes that could affect treatment decisions (0.8–0.95).</p>
+    </div>
+
+  </div>
+
+  <aside class="about-sidebar">
+    <div class="card sidebar-card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>Dataset at a glance</h2></div>
+      <ul class="quick-list">
+        <li><strong>31</strong> STRIDE-based threats</li>
+        <li><strong>14</strong> security controls</li>
+        <li><strong>16,383</strong> possible control subsets</li>
+        <li>Cost data sourced from real implementation-hour estimates and SDK/licensing pricing</li>
+      </ul>
+    </div>
+    <div class="card sidebar-card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>Try it with this data</h2></div>
+      <p style="font-size:.86rem;color:var(--text-mid);margin-bottom:.8rem">The simulator can load this exact dataset as a starting point.</p>
+      <a href="/simulate?dataset=healthcare" class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Load in simulator →</a>
+    </div>
+    <div class="card sidebar-card">
+      <div class="card-head"><span class="card-icon">◆</span><h2>This is one example</h2></div>
+      <p style="font-size:.85rem;color:var(--text-mid)">The underlying model makes no healthcare-specific assumptions. See the <a href="/">concept &amp; model</a> page for the domain-agnostic version, or bring your own threats and controls to the <a href="/simulate">simulator</a>.</p>
+    </div>
+  </aside>
+
+</div>
+
+{% endblock %}

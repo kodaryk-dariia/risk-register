@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Optimal Control Sets{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <span class="logo-dot"></span>
+    <span>Optimal Control Sets</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/" class="{% if request.endpoint == 'index' %}active{% endif %}">Concept &amp; Model</a></li>
+    <li><a href="/case-study/healthcare" class="{% if request.endpoint == 'case_study_healthcare' %}active{% endif %}">Healthcare Case Study</a></li>
+    <li><a href="/simulate" class="{% if request.endpoint == 'simulate_page' %}active{% endif %}">Run Simulation</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="menu">&#9776;</button>
+</nav>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span class="footer-author">Built by <a href="https://www.linkedin.com/in/dariia-kosaryk-514841345" target="_blank" rel="noopener">Dariia Kosaryk</a></span>
+    <span class="footer-sep">·</span>
+    <a href="https://www.linkedin.com/in/dariia-kosaryk-514841345" target="_blank" rel="noopener">LinkedIn</a>
+    <span class="footer-sep">·</span>
+    <a href="/feedback" class="{% if request.endpoint == 'feedback_page' %}active{% endif %}">Feedback</a>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
