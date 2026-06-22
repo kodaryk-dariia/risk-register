@@ -10,19 +10,14 @@
 
 <section class="section" style="padding-top:1rem;max-width:640px">
 
-  {% if request.args.get('sent') %}
-  <div class="feedback-success">
+  <div class="feedback-success" id="fb-success" style="display:none">
     ✓ Message sent — thank you for the feedback!
   </div>
-  {% elif error %}
-  <div class="feedback-error">
-    Something went wrong: {{ error }}. You can also reach out via
-    <a href="https://www.linkedin.com/in/dariia-kosaryk-514841345" target="_blank" rel="noopener">LinkedIn</a>.
-  </div>
-  {% endif %}
 
-  <<form method="POST" action="https://formspree.io/f/xkolngjr" class="feedback-form">
-<input type="hidden" name="_next" value="https://risk-register-ca4t.onrender.com/feedback?sent=1" />
+  <div class="feedback-error" id="fb-error" style="display:none"></div>
+
+  <form id="feedback-form" class="feedback-form">
+    <input type="hidden" name="_subject" value="Feedback — Optimal Control Sets" />
     <div class="fb-field">
       <label class="fb-label" for="fb-name">Your name <span class="fb-opt">(optional)</span></label>
       <input class="fb-input" type="text" id="fb-name" name="name" placeholder="e.g. Alex" maxlength="120" />
@@ -42,10 +37,52 @@
     </div>
     <div class="fb-field">
       <label class="fb-label" for="fb-msg">Message <span style="color:var(--red)">*</span></label>
-      <textarea class="fb-input" id="fb-msg" name="message" rows="6" placeholder="Describe what you noticed, what you'd like to see, or how you'd use this tool…" maxlength="4000" required></textarea>
+      <textarea class="fb-input" id="fb-msg" name="message" rows="6"
+        placeholder="Describe what you noticed, what you'd like to see, or how you'd use this tool…"
+        maxlength="4000" required></textarea>
     </div>
-    <button type="submit" class="btn btn-primary">Send feedback</button>
+    <button type="submit" class="btn btn-primary" id="fb-btn">Send feedback</button>
   </form>
+
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('feedback-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('fb-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const data = new FormData(this);
+
+  try {
+    const resp = await fetch('https://formspree.io/f/xkolngjr', {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (resp.ok) {
+      document.getElementById('feedback-form').style.display = 'none';
+      document.getElementById('fb-success').style.display = 'block';
+    } else {
+      const err = await resp.json();
+      document.getElementById('fb-error').textContent =
+        'Something went wrong: ' + (err.error || 'please try again.');
+      document.getElementById('fb-error').style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Send feedback';
+    }
+  } catch(e) {
+    document.getElementById('fb-error').textContent =
+      'Network error — please check your connection and try again.';
+    document.getElementById('fb-error').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send feedback';
+  }
+});
+</script>
 {% endblock %}
