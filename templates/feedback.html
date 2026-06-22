@@ -10,7 +10,7 @@
 
 <section class="section" style="padding-top:1rem;max-width:640px">
 
-  {% if sent %}
+  {% if request.args.get('sent') %}
   <div class="feedback-success">
     ✓ Message sent — thank you for the feedback!
   </div>
@@ -21,7 +21,8 @@
   </div>
   {% endif %}
 
-  <form method="POST" action="/feedback" class="feedback-form">
+  <<form method="POST" action="https://formspree.io/f/xkolngjr" class="feedback-form">
+<input type="hidden" name="_next" value="https://risk-register-ca4t.onrender.com/feedback?sent=1" />
     <div class="fb-field">
       <label class="fb-label" for="fb-name">Your name <span class="fb-opt">(optional)</span></label>
       <input class="fb-input" type="text" id="fb-name" name="name" placeholder="e.g. Alex" maxlength="120" />
